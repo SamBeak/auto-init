@@ -43,6 +43,155 @@ function Write-Log {
 }
 
 # ============================================
+# 설치 결과 추적
+# ============================================
+
+$global:InstallResults = @{
+    Success = [System.Collections.ArrayList]@()
+    Failed = [System.Collections.ArrayList]@()
+    Skipped = [System.Collections.ArrayList]@()
+}
+
+function Initialize-InstallResults {
+    $global:InstallResults = @{
+        Success = [System.Collections.ArrayList]@()
+        Failed = [System.Collections.ArrayList]@()
+        Skipped = [System.Collections.ArrayList]@()
+    }
+}
+
+function Add-InstallResult {
+    param(
+        [string]$ToolName,
+        [ValidateSet('Success', 'Failed', 'Skipped')]
+        [string]$Status,
+        [string]$Message = ""
+    )
+    
+    $result = @{
+        Name = $ToolName
+        Time = Get-Date -Format "HH:mm:ss"
+        Message = $Message
+    }
+    
+    $global:InstallResults[$Status].Add($result) | Out-Null
+    
+    switch ($Status) {
+        'Success' { Write-Log "$ToolName 설치 성공" -Level SUCCESS }
+        'Failed'  { Write-Log "$ToolName 설치 실패: $Message" -Level ERROR }
+        'Skipped' { Write-Log "$ToolName 건너뜀: $Message" -Level INFO }
+    }
+}
+
+function Show-InstallSummary {
+    Write-Host ""
+    Write-Host "╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║              설치 결과 요약                           ║" -ForegroundColor Cyan
+    Write-Host "╠═══════════════════════════════════════════════════════╣" -ForegroundColor Cyan
+    
+    # 성공
+    $successCount = $global:InstallResults.Success.Count
+    Write-Host "║  " -ForegroundColor Cyan -NoNewline
+    Write-Host "✅ 성공: $successCount개" -ForegroundColor Green -NoNewline
+    Write-Host (" " * (43 - "✅ 성공: $successCount개".Length)) -NoNewline
+    Write-Host "║" -ForegroundColor Cyan
+    
+    foreach ($item in $global:InstallResults.Success) {
+        $name = $item.Name
+        Write-Host "║     " -ForegroundColor Cyan -NoNewline
+        Write-Host "• $name" -ForegroundColor White -NoNewline
+        Write-Host (" " * (48 - $name.Length)) -NoNewline
+        Write-Host "║" -ForegroundColor Cyan
+    }
+    
+    # 실패
+    $failedCount = $global:InstallResults.Failed.Count
+    if ($failedCount -gt 0) {
+        Write-Host "║  " -ForegroundColor Cyan -NoNewline
+        Write-Host "❌ 실패: $failedCount개" -ForegroundColor Red -NoNewline
+        Write-Host (" " * (43 - "❌ 실패: $failedCount개".Length)) -NoNewline
+        Write-Host "║" -ForegroundColor Cyan
+        
+        foreach ($item in $global:InstallResults.Failed) {
+            $name = $item.Name
+            Write-Host "║     " -ForegroundColor Cyan -NoNewline
+            Write-Host "• $name" -ForegroundColor Red -NoNewline
+            Write-Host (" " * (48 - $name.Length)) -NoNewline
+            Write-Host "║" -ForegroundColor Cyan
+        }
+    }
+    
+    # 건너뜀
+    $skippedCount = $global:InstallResults.Skipped.Count
+    if ($skippedCount -gt 0) {
+        Write-Host "║  " -ForegroundColor Cyan -NoNewline
+        Write-Host "⏭️ 건너뜀: $skippedCount개" -ForegroundColor Yellow -NoNewline
+        Write-Host (" " * (41 - "⏭️ 건너뜀: $skippedCount개".Length)) -NoNewline
+        Write-Host "║" -ForegroundColor Cyan
+        
+        foreach ($item in $global:InstallResults.Skipped) {
+            $name = $item.Name
+            Write-Host "║     " -ForegroundColor Cyan -NoNewline
+            Write-Host "• $name" -ForegroundColor Yellow -NoNewline
+            Write-Host (" " * (48 - $name.Length)) -NoNewline
+            Write-Host "║" -ForegroundColor Cyan
+        }
+    }
+    
+    Write-Host "╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # 로그 파일에도 기록
+    Write-Log "설치 결과 - 성공: $successCount, 실패: $failedCount, 건너뜀: $skippedCount" -Level INFO
+}
+
+# ============================================
+# 에러 복구 메커니즘
+# ============================================
+
+function Invoke-WithRetry {
+    param(
+        [string]$ToolName,
+        [scriptblock]$Action,
+        [int]$MaxRetries = 2,
+        [switch]$ContinueOnFailure
+    )
+    
+    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+        try {
+            $result = & $Action
+            
+            if ($result -eq $true -or $LASTEXITCODE -eq 0) {
+                Add-InstallResult -ToolName $ToolName -Status Success
+                return $true
+            }
+        } catch {
+            Write-Log "$ToolName 설치 시도 $attempt/$MaxRetries 실패: $($_.Exception.Message)" -Level WARNING
+        }
+        
+        if ($attempt -lt $MaxRetries) {
+            Write-Log "$ToolName 재시도 중... ($attempt/$MaxRetries)" -Level WARNING
+            Start-Sleep -Seconds 3
+        }
+    }
+    
+    # 모든 재시도 실패
+    if ($ContinueOnFailure) {
+        $continue = Read-Host "$ToolName 설치에 실패했습니다. 계속 진행하시겠습니까? (Y/N)"
+        if ($continue -eq 'Y' -or $continue -eq 'y') {
+            Add-InstallResult -ToolName $ToolName -Status Failed -Message "사용자가 계속 진행 선택"
+            return $false
+        } else {
+            Add-InstallResult -ToolName $ToolName -Status Failed -Message "사용자가 중단 선택"
+            throw "사용자가 설치를 중단했습니다."
+        }
+    } else {
+        Add-InstallResult -ToolName $ToolName -Status Failed -Message "최대 재시도 횟수 초과"
+        return $false
+    }
+}
+
+# ============================================
 # 사전 요구사항 체크
 # ============================================
 

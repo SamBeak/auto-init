@@ -25,9 +25,6 @@ function Install-Winget {
     Write-Log "Winget 설치를 시작합니다..." -Level INFO
 
     try {
-        # Windows 버전 확인
-        $osVersion = [System.Environment]::OSVersion.Version
-        
         # Windows 11 또는 Windows 10 최신 버전은 winget이 기본 포함
         # 없는 경우 App Installer 패키지 설치
 
@@ -102,7 +99,7 @@ function Install-WingetPackage {
     param(
         [string]$PackageId,
         [string]$Source = "winget",
-        [switch]$Silent = $true
+        [switch]$Silent
     )
 
     Write-Log "Winget으로 $PackageId 설치 중..." -Level INFO
@@ -113,13 +110,13 @@ function Install-WingetPackage {
     }
 
     try {
-        $args = @("install", "--id", $PackageId, "--source", $Source, "--accept-package-agreements", "--accept-source-agreements")
+        $wingetArgs = @("install", "--id", $PackageId, "--source", $Source, "--accept-package-agreements", "--accept-source-agreements")
 
         if ($Silent) {
-            $args += "--silent"
+            $wingetArgs += "--silent"
         }
 
-        $process = Start-Process -FilePath "winget" -ArgumentList $args -NoNewWindow -Wait -PassThru
+        $process = Start-Process -FilePath "winget" -ArgumentList $wingetArgs -NoNewWindow -Wait -PassThru
 
         if ($process.ExitCode -eq 0) {
             Write-Log "$PackageId 설치 완료" -Level SUCCESS

@@ -70,9 +70,12 @@ function Install-Poetry {
     try {
         (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
 
-        # Poetry PATH 추가
-        $poetryPath = Join-Path $env:APPDATA "Python\Scripts"
+        # Poetry PATH 추가 (Poetry는 %APPDATA%\pypoetry\venv\Scripts에 설치됨)
+        $poetryPath = Join-Path $env:APPDATA "pypoetry\venv\Scripts"
         Add-PathVariable -Path $poetryPath -Scope User
+        
+        # 환경 변수 새로고침
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
         Write-Log "Poetry 설치 완료" -Level SUCCESS
         return $true

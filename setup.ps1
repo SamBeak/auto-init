@@ -46,6 +46,9 @@ function Show-MainMenu {
     Write-Host "  [4] 데이터 엔지니어" -ForegroundColor White
     Write-Host "  [5] 사용자 정의 선택" -ForegroundColor White
     Write-Host "  [6] 설치 검증만 실행" -ForegroundColor Yellow
+    Write-Host "  [7] 헬스 체크 (서비스 상태 확인)" -ForegroundColor Yellow
+    Write-Host "  [8] 오프라인 설치 모드" -ForegroundColor Magenta
+    Write-Host "  [9] 오프라인 캐시 다운로드" -ForegroundColor Magenta
     Write-Host "  [0] 종료" -ForegroundColor Red
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
@@ -53,7 +56,7 @@ function Show-MainMenu {
 }
 
 function Get-UserChoice {
-    $choice = Read-Host "선택 (0-6)"
+    $choice = Read-Host "선택 (0-9)"
     return $choice
 }
 
@@ -262,39 +265,66 @@ function Install-FullStack {
 function Install-Frontend {
     Write-Log "프론트엔드 개발 환경 설치를 시작합니다..." -Level INFO
 
+    Initialize-Progress -Steps 6
+
     # 패키지 관리자
+    Update-InstallProgress -StepName "Chocolatey 설치"
     & "$ScriptRoot\config\chocolatey.ps1"
 
     # 기본 도구
+    Update-InstallProgress -StepName "Git 설치"
     & "$ScriptRoot\config\git.ps1"
+    
+    Update-InstallProgress -StepName "Node.js 설치"
     & "$ScriptRoot\config\node.ps1"
+    
+    Update-InstallProgress -StepName "VS Code 설치"
     & "$ScriptRoot\config\vscode.ps1"
 
     # 추가 도구
+    Update-InstallProgress -StepName "추가 도구 설치"
     & "$ScriptRoot\config\tools.ps1"
+    
+    Update-InstallProgress -StepName "코드 품질 도구 설치"
     & "$ScriptRoot\config\linters.ps1"
 
+    Write-Progress -Activity "개발 환경 설치" -Completed
     Write-Log "프론트엔드 개발 환경 설치 완료!" -Level SUCCESS
 }
 
 function Install-Backend {
     Write-Log "백엔드 개발 환경 설치를 시작합니다..." -Level INFO
 
+    Initialize-Progress -Steps 9
+
     # 패키지 관리자
+    Update-InstallProgress -StepName "Chocolatey 설치"
     & "$ScriptRoot\config\chocolatey.ps1"
 
     # 기본 도구
+    Update-InstallProgress -StepName "Git 설치"
     & "$ScriptRoot\config\git.ps1"
+    
+    Update-InstallProgress -StepName "Node.js 설치"
     & "$ScriptRoot\config\node.ps1"
+    
+    Update-InstallProgress -StepName "Python 설치"
     & "$ScriptRoot\config\python.ps1"
+    
+    Update-InstallProgress -StepName "Java 설치"
     & "$ScriptRoot\config\java.ps1"
+    
+    Update-InstallProgress -StepName "Docker 설치"
     & "$ScriptRoot\config\docker.ps1"
+    
+    Update-InstallProgress -StepName "VS Code 설치"
     & "$ScriptRoot\config\vscode.ps1"
 
     # 데이터베이스 설정 입력
     $dbConfig = Get-DatabaseConfiguration
 
     # 데이터베이스 설치
+    Update-InstallProgress -StepName "데이터베이스 설치"
     . "$ScriptRoot\config\database.ps1"
     Install-PostgreSQL -Port $dbConfig.PostgreSQL.Port -Username $dbConfig.PostgreSQL.Username -Password $dbConfig.PostgreSQL.Password
     Install-MySQL -Port $dbConfig.MySQL.Port -Username $dbConfig.MySQL.Username -Password $dbConfig.MySQL.Password
@@ -305,27 +335,40 @@ function Install-Backend {
     Set-DatabaseAutoStart
 
     # 추가 도구
+    Update-InstallProgress -StepName "추가 도구 설치"
     & "$ScriptRoot\config\tools.ps1"
 
+    Write-Progress -Activity "개발 환경 설치" -Completed
     Write-Log "백엔드 개발 환경 설치 완료!" -Level SUCCESS
 }
 
 function Install-DataEngineer {
     Write-Log "데이터 엔지니어 환경 설치를 시작합니다..." -Level INFO
 
+    Initialize-Progress -Steps 7
+
     # 패키지 관리자
+    Update-InstallProgress -StepName "Chocolatey 설치"
     & "$ScriptRoot\config\chocolatey.ps1"
 
     # 기본 도구
+    Update-InstallProgress -StepName "Git 설치"
     & "$ScriptRoot\config\git.ps1"
+    
+    Update-InstallProgress -StepName "Python 설치"
     & "$ScriptRoot\config\python.ps1"
+    
+    Update-InstallProgress -StepName "Docker 설치"
     & "$ScriptRoot\config\docker.ps1"
+    
+    Update-InstallProgress -StepName "VS Code 설치"
     & "$ScriptRoot\config\vscode.ps1"
 
     # 데이터베이스 설정 입력
     $dbConfig = Get-DatabaseConfiguration
 
     # 데이터베이스 설치
+    Update-InstallProgress -StepName "데이터베이스 설치"
     . "$ScriptRoot\config\database.ps1"
     Install-PostgreSQL -Port $dbConfig.PostgreSQL.Port -Username $dbConfig.PostgreSQL.Username -Password $dbConfig.PostgreSQL.Password
     Install-MySQL -Port $dbConfig.MySQL.Port -Username $dbConfig.MySQL.Username -Password $dbConfig.MySQL.Password
@@ -336,9 +379,11 @@ function Install-DataEngineer {
     Set-DatabaseAutoStart
 
     # 추가 도구
+    Update-InstallProgress -StepName "Apache Spark 설치"
     . "$ScriptRoot\config\chocolatey.ps1"
     Install-ChocolateyPackage -PackageName "apache-spark"
 
+    Write-Progress -Activity "개발 환경 설치" -Completed
     Write-Log "데이터 엔지니어 환경 설치 완료!" -Level SUCCESS
 }
 
@@ -422,6 +467,9 @@ function Install-Custom {
 
 function Start-Installation {
     $startTime = Get-Date
+    
+    # 설치 결과 초기화
+    Initialize-InstallResults
 
     while ($true) {
         Show-MainMenu
@@ -458,6 +506,21 @@ function Start-Installation {
                 & "$ScriptRoot\scripts\validator.ps1"
                 continue
             }
+            "7" {
+                Write-Log "헬스 체크 실행" -Level INFO
+                & "$ScriptRoot\scripts\health-check.ps1"
+                continue
+            }
+            "8" {
+                Write-Log "오프라인 설치 모드 실행" -Level INFO
+                & "$ScriptRoot\scripts\offline-install.ps1"
+                continue
+            }
+            "9" {
+                Write-Log "오프라인 캐시 다운로드 실행" -Level INFO
+                & "$ScriptRoot\scripts\cache-manager.ps1"
+                continue
+            }
             "0" {
                 Write-Log "설치를 종료합니다." -Level INFO
                 exit 0
@@ -470,6 +533,9 @@ function Start-Installation {
 
         break
     }
+
+    # 설치 결과 요약 표시
+    Show-InstallSummary
 
     # 설치 후 검증
     Write-Host "`n" -NoNewline
