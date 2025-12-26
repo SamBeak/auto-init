@@ -22,7 +22,7 @@ Windows에서 풀스택 개발을 위한 모든 도구를 자동으로 설치하
 
 ### 🛠️ 기본 개발 도구
 - **Git** + GitHub CLI
-- **nvm-windows** + **Node.js 24.4.0** + npm, yarn, pnpm
+- **nvm-windows** + **Node.js 22.12.0 (LTS)** + npm, yarn, pnpm
 - **Python 3.x** + pip, pipx, Poetry
 - **Java** (OpenJDK) + Maven, Gradle
 - **Docker Desktop** + WSL2

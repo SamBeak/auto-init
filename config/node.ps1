@@ -30,7 +30,7 @@ function Install-NVM {
 
 function Install-NodeJS {
     param(
-        [string]$Version = "24.4.0"  # 기본 버전
+        [string]$Version = "22.12.0"  # LTS 버전
     )
 
     Write-Log "Node.js 설치를 시작합니다 (nvm 사용)..." -Level INFO
@@ -209,7 +209,7 @@ function Set-NpmConfiguration {
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
     Install-NVM
-    Install-NodeJS -Version "24.4.0"
+    Install-NodeJS -Version "22.12.0"
     Install-Yarn
     Install-Pnpm
     Install-GlobalNpmPackages

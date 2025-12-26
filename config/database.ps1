@@ -194,8 +194,12 @@ function Install-SQLiteStudio {
 function Start-DatabaseServices {
     Write-Log "데이터베이스 서비스 시작 중..." -Level INFO
 
+    # PostgreSQL 서비스 이름 동적 탐지
+    $pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    $pgServiceName = if ($pgService) { $pgService.Name } else { "postgresql-x64-17" }
+
     $services = @(
-        @{Name="postgresql-x64-14"; DisplayName="PostgreSQL"},
+        @{Name=$pgServiceName; DisplayName="PostgreSQL"},
         @{Name="MySQL"; DisplayName="MySQL"},
         @{Name="MongoDB"; DisplayName="MongoDB"},
         @{Name="Redis"; DisplayName="Redis"}
@@ -225,7 +229,11 @@ function Start-DatabaseServices {
 function Set-DatabaseAutoStart {
     Write-Log "데이터베이스 자동 시작 설정 중..." -Level INFO
 
-    $services = @("postgresql-x64-14", "MySQL", "MongoDB", "Redis")
+    # PostgreSQL 서비스 이름 동적 탐지
+    $pgService = Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    $pgServiceName = if ($pgService) { $pgService.Name } else { "postgresql-x64-17" }
+
+    $services = @($pgServiceName, "MySQL", "MongoDB", "Redis")
 
     foreach ($serviceName in $services) {
         try {

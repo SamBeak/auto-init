@@ -17,6 +17,19 @@ Show-Banner
 # 관리자 권한 확인
 Require-Administrator
 
+# 사전 요구사항 체크
+$prerequisitesOk = Test-Prerequisites
+
+if (-not $prerequisitesOk) {
+    Write-Host ""
+    $continue = Read-Host "일부 요구사항이 충족되지 않았습니다. 계속 진행하시겠습니까? (Y/N)"
+    if ($continue -ne 'Y' -and $continue -ne 'y') {
+        Write-Log "사용자가 설치를 취소했습니다." -Level INFO
+        exit 0
+    }
+    Write-Log "사용자가 계속 진행을 선택했습니다." -Level WARNING
+}
+
 # ============================================
 # 메뉴 함수
 # ============================================
@@ -120,31 +133,112 @@ function Get-DatabaseConfiguration {
 }
 
 # ============================================
+# 진행률 표시 함수
+# ============================================
+
+$global:TotalSteps = 0
+$global:CurrentStep = 0
+$global:InstallStartTime = $null
+
+function Initialize-Progress {
+    param([int]$Steps)
+    $global:TotalSteps = $Steps
+    $global:CurrentStep = 0
+    $global:InstallStartTime = Get-Date
+}
+
+function Update-InstallProgress {
+    param([string]$StepName)
+    
+    $global:CurrentStep++
+    $percent = [math]::Round(($global:CurrentStep / $global:TotalSteps) * 100)
+    
+    # 경과 시간 계산
+    $elapsed = (Get-Date) - $global:InstallStartTime
+    $elapsedStr = $elapsed.ToString('mm\:ss')
+    
+    # 예상 남은 시간 계산
+    if ($global:CurrentStep -gt 0) {
+        $avgTimePerStep = $elapsed.TotalSeconds / $global:CurrentStep
+        $remainingSteps = $global:TotalSteps - $global:CurrentStep
+        $remainingSeconds = $avgTimePerStep * $remainingSteps
+        $remainingStr = [TimeSpan]::FromSeconds($remainingSeconds).ToString('mm\:ss')
+    } else {
+        $remainingStr = "--:--"
+    }
+    
+    Write-Host ""
+    Write-Host "┌─────────────────────────────────────────────────┐" -ForegroundColor DarkCyan
+    Write-Host "│ " -ForegroundColor DarkCyan -NoNewline
+    Write-Host "[$global:CurrentStep/$global:TotalSteps] $StepName" -ForegroundColor White -NoNewline
+    Write-Host (" " * (47 - $StepName.Length - 6)) -NoNewline
+    Write-Host "│" -ForegroundColor DarkCyan
+    Write-Host "│ " -ForegroundColor DarkCyan -NoNewline
+    
+    # 진행률 바
+    $barWidth = 30
+    $filled = [math]::Round($barWidth * $percent / 100)
+    $empty = $barWidth - $filled
+    Write-Host "[" -NoNewline -ForegroundColor Gray
+    Write-Host ("█" * $filled) -NoNewline -ForegroundColor Green
+    Write-Host ("░" * $empty) -NoNewline -ForegroundColor DarkGray
+    Write-Host "] " -NoNewline -ForegroundColor Gray
+    Write-Host "$percent%" -NoNewline -ForegroundColor Yellow
+    Write-Host "        │" -ForegroundColor DarkCyan
+    
+    Write-Host "│ " -ForegroundColor DarkCyan -NoNewline
+    Write-Host "경과: $elapsedStr | 예상 남은 시간: $remainingStr" -ForegroundColor Gray -NoNewline
+    Write-Host "          │" -ForegroundColor DarkCyan
+    Write-Host "└─────────────────────────────────────────────────┘" -ForegroundColor DarkCyan
+    Write-Host ""
+    
+    Write-Progress -Activity "개발 환경 설치" -Status "$StepName ($percent%)" -PercentComplete $percent
+}
+
+# ============================================
 # 설치 프로파일
 # ============================================
 
 function Install-FullStack {
     Write-Log "풀스택 개발 환경 설치를 시작합니다..." -Level INFO
+    
+    Initialize-Progress -Steps 12
 
     # 패키지 관리자
+    Update-InstallProgress -StepName "Chocolatey 설치"
     & "$ScriptRoot\config\chocolatey.ps1"
+    
+    Update-InstallProgress -StepName "Winget 설치"
     & "$ScriptRoot\config\winget.ps1"
 
     # 핵심 도구
+    Update-InstallProgress -StepName "Git 설치"
     & "$ScriptRoot\config\git.ps1"
+    
+    Update-InstallProgress -StepName "Node.js 설치"
     & "$ScriptRoot\config\node.ps1"
+    
+    Update-InstallProgress -StepName "Python 설치"
     & "$ScriptRoot\config\python.ps1"
+    
+    Update-InstallProgress -StepName "Java 설치"
     & "$ScriptRoot\config\java.ps1"
+    
+    Update-InstallProgress -StepName "Docker 설치"
     & "$ScriptRoot\config\docker.ps1"
+    
+    Update-InstallProgress -StepName "VS Code 설치"
     & "$ScriptRoot\config\vscode.ps1"
 
     # 전자정부프레임워크
+    Update-InstallProgress -StepName "전자정부프레임워크 설치"
     & "$ScriptRoot\config\egovframework.ps1"
 
     # 데이터베이스 설정 입력
     $dbConfig = Get-DatabaseConfiguration
 
     # 데이터베이스 설치
+    Update-InstallProgress -StepName "데이터베이스 설치"
     . "$ScriptRoot\config\database.ps1"
     Install-PostgreSQL -Port $dbConfig.PostgreSQL.Port -Username $dbConfig.PostgreSQL.Username -Password $dbConfig.PostgreSQL.Password
     Install-MySQL -Port $dbConfig.MySQL.Port -Username $dbConfig.MySQL.Username -Password $dbConfig.MySQL.Password
@@ -155,9 +249,13 @@ function Install-FullStack {
     Set-DatabaseAutoStart
 
     # 추가 도구
+    Update-InstallProgress -StepName "추가 도구 설치"
     & "$ScriptRoot\config\tools.ps1"
+    
+    Update-InstallProgress -StepName "코드 품질 도구 설치"
     & "$ScriptRoot\config\linters.ps1"
 
+    Write-Progress -Activity "개발 환경 설치" -Completed
     Write-Log "풀스택 개발 환경 설치 완료!" -Level SUCCESS
 }
 

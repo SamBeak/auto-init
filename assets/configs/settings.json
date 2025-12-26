@@ -1,0 +1,70 @@
+{
+	"editor.fontSize": 14,
+	"editor.fontFamily": "'Cascadia Code', 'JetBrains Mono', Consolas, monospace",
+	"editor.fontLigatures": true,
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"editor.wordWrap": "on",
+	"editor.minimap.enabled": true,
+	"editor.bracketPairColorization.enabled": true,
+	"editor.guides.bracketPairs": true,
+	"editor.suggestSelection": "first",
+	"editor.linkedEditing": true,
+
+	"files.autoSave": "afterDelay",
+	"files.autoSaveDelay": 1000,
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"files.encoding": "utf8",
+	"files.eol": "\n",
+
+	"workbench.colorTheme": "One Dark Pro",
+	"workbench.iconTheme": "material-icon-theme",
+	"workbench.startupEditor": "none",
+
+	"terminal.integrated.defaultProfile.windows": "PowerShell",
+	"terminal.integrated.fontSize": 13,
+
+	"git.autofetch": true,
+	"git.enableSmartCommit": true,
+	"git.confirmSync": false,
+
+	"prettier.singleQuote": true,
+	"prettier.useTabs": true,
+	"prettier.tabWidth": 4,
+	"prettier.semi": true,
+	"prettier.trailingComma": "es5",
+
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
+	],
+
+	"emmet.includeLanguages": {
+		"javascript": "javascriptreact",
+		"typescript": "typescriptreact"
+	},
+
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
+}

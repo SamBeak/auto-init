@@ -43,6 +43,131 @@ function Write-Log {
 }
 
 # ============================================
+# 사전 요구사항 체크
+# ============================================
+
+function Test-InternetConnection {
+    param(
+        [string]$TestUrl = "https://community.chocolatey.org",
+        [int]$TimeoutSeconds = 10
+    )
+
+    Write-Log "인터넷 연결 확인 중..." -Level INFO
+
+    try {
+        # DNS 확인
+        $dns = Resolve-DnsName -Name "google.com" -ErrorAction Stop -DnsOnly
+        if (-not $dns) {
+            Write-Log "DNS 확인 실패" -Level ERROR
+            return $false
+        }
+
+        # HTTP 연결 테스트
+        $request = [System.Net.WebRequest]::Create($TestUrl)
+        $request.Timeout = $TimeoutSeconds * 1000
+        $request.Method = "HEAD"
+        
+        $response = $request.GetResponse()
+        $response.Close()
+
+        Write-Log "인터넷 연결 확인됨" -Level SUCCESS
+        return $true
+
+    } catch {
+        Write-Log "인터넷 연결 실패: $($_.Exception.Message)" -Level ERROR
+        Write-Log "네트워크 연결을 확인하고 다시 시도해주세요." -Level WARNING
+        return $false
+    }
+}
+
+function Test-DiskSpace {
+    param(
+        [int]$RequiredGB = 20,
+        [string]$DriveLetter = $env:SystemDrive
+    )
+
+    Write-Log "디스크 공간 확인 중..." -Level INFO
+
+    try {
+        $drive = Get-PSDrive -Name $DriveLetter.TrimEnd(':') -ErrorAction Stop
+        $freeSpaceGB = [math]::Round($drive.Free / 1GB, 2)
+        $totalSpaceGB = [math]::Round(($drive.Used + $drive.Free) / 1GB, 2)
+
+        Write-Log "드라이브 $DriveLetter - 전체: ${totalSpaceGB}GB, 여유: ${freeSpaceGB}GB" -Level INFO
+
+        if ($freeSpaceGB -lt $RequiredGB) {
+            Write-Log "디스크 공간 부족: ${freeSpaceGB}GB (필요: ${RequiredGB}GB 이상)" -Level ERROR
+            Write-Log "불필요한 파일을 삭제하고 다시 시도해주세요." -Level WARNING
+            return $false
+        }
+
+        Write-Log "디스크 공간 충분: ${freeSpaceGB}GB 사용 가능" -Level SUCCESS
+        return $true
+
+    } catch {
+        Write-Log "디스크 공간 확인 실패: $($_.Exception.Message)" -Level ERROR
+        return $false
+    }
+}
+
+function Test-WindowsVersion {
+    Write-Log "Windows 버전 확인 중..." -Level INFO
+
+    try {
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        $version = [System.Environment]::OSVersion.Version
+        $buildNumber = $os.BuildNumber
+
+        Write-Log "OS: $($os.Caption) (빌드 $buildNumber)" -Level INFO
+
+        # Windows 10 1809 (빌드 17763) 이상 확인
+        if ($buildNumber -lt 17763) {
+            Write-Log "Windows 10 1809 이상이 필요합니다. (현재: 빌드 $buildNumber)" -Level ERROR
+            return $false
+        }
+
+        Write-Log "Windows 버전 호환됨" -Level SUCCESS
+        return $true
+
+    } catch {
+        Write-Log "Windows 버전 확인 실패: $($_.Exception.Message)" -Level WARNING
+        return $true  # 확인 실패해도 계속 진행
+    }
+}
+
+function Test-Prerequisites {
+    Write-Log "사전 요구사항 확인을 시작합니다..." -Level INFO
+    Write-Host ""
+
+    $allPassed = $true
+
+    # 1. Windows 버전 체크
+    if (-not (Test-WindowsVersion)) {
+        $allPassed = $false
+    }
+
+    # 2. 인터넷 연결 체크
+    if (-not (Test-InternetConnection)) {
+        $allPassed = $false
+    }
+
+    # 3. 디스크 공간 체크
+    if (-not (Test-DiskSpace -RequiredGB 15)) {
+        $allPassed = $false
+    }
+
+    Write-Host ""
+
+    if ($allPassed) {
+        Write-Log "모든 사전 요구사항이 충족되었습니다." -Level SUCCESS
+    } else {
+        Write-Log "일부 사전 요구사항이 충족되지 않았습니다." -Level WARNING
+    }
+
+    return $allPassed
+}
+
+# ============================================
 # 권한 확인
 # ============================================
 
@@ -53,13 +178,20 @@ function Test-Administrator {
 }
 
 function Require-Administrator {
+    param(
+        [string]$ScriptPath = $null
+    )
+
     if (-not (Test-Administrator)) {
         Write-Log "관리자 권한이 필요합니다. 관리자로 다시 실행해주세요." -Level ERROR
         Write-Host "`n스크립트를 관리자 권한으로 다시 실행하려면 Enter를 누르세요..." -ForegroundColor Yellow
         Read-Host
 
-        # 관리자 권한으로 재시작
-        $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        # 관리자 권한으로 재시작 (호출자의 스크립트 경로 사용)
+        if ([string]::IsNullOrEmpty($ScriptPath)) {
+            $ScriptPath = $PSCommandPath
+        }
+        $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptPath`""
         Start-Process powershell.exe -Verb RunAs -ArgumentList $arguments
         exit
     }
@@ -381,5 +513,4 @@ function Invoke-SafeExecution {
     }
 }
 
-# 모듈 내보내기
-Export-ModuleMember -Function *
+# 유틸리티 함수 로드 완료

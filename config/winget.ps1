@@ -13,6 +13,91 @@ function Test-WingetAvailable {
     }
 }
 
+function Install-Winget {
+    Write-Log "Winget 설치를 확인합니다..." -Level INFO
+
+    if (Test-WingetAvailable) {
+        $version = winget --version
+        Write-Log "Winget이 이미 설치되어 있습니다: $version" -Level SUCCESS
+        return $true
+    }
+
+    Write-Log "Winget 설치를 시작합니다..." -Level INFO
+
+    try {
+        # Windows 버전 확인
+        $osVersion = [System.Environment]::OSVersion.Version
+        
+        # Windows 11 또는 Windows 10 최신 버전은 winget이 기본 포함
+        # 없는 경우 App Installer 패키지 설치
+
+        # 임시 디렉토리
+        $tempDir = Join-Path $env:TEMP "winget_install"
+        if (-not (Test-Path $tempDir)) {
+            New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+        }
+
+        # Microsoft.DesktopAppInstaller 다운로드
+        Write-Log "App Installer 패키지 다운로드 중..." -Level INFO
+        
+        $appInstallerUrl = "https://aka.ms/getwinget"
+        $appInstallerPath = Join-Path $tempDir "Microsoft.DesktopAppInstaller.msixbundle"
+        
+        # VCLibs 의존성 다운로드
+        $vcLibsUrl = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+        $vcLibsPath = Join-Path $tempDir "Microsoft.VCLibs.x64.14.00.Desktop.appx"
+
+        # UI.Xaml 의존성 다운로드
+        $xamlUrl = "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx"
+        $xamlPath = Join-Path $tempDir "Microsoft.UI.Xaml.2.8.x64.appx"
+
+        # 다운로드
+        $webClient = New-Object System.Net.WebClient
+        
+        Write-Log "VCLibs 다운로드 중..." -Level INFO
+        $webClient.DownloadFile($vcLibsUrl, $vcLibsPath)
+        
+        Write-Log "UI.Xaml 다운로드 중..." -Level INFO
+        $webClient.DownloadFile($xamlUrl, $xamlPath)
+        
+        Write-Log "App Installer 다운로드 중..." -Level INFO
+        $webClient.DownloadFile($appInstallerUrl, $appInstallerPath)
+
+        # 의존성 설치
+        Write-Log "의존성 패키지 설치 중..." -Level INFO
+        Add-AppxPackage -Path $vcLibsPath -ErrorAction SilentlyContinue
+        Add-AppxPackage -Path $xamlPath -ErrorAction SilentlyContinue
+
+        # App Installer 설치
+        Write-Log "App Installer 설치 중..." -Level INFO
+        Add-AppxPackage -Path $appInstallerPath
+
+        # 환경 변수 새로고침
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+        # 설치 확인
+        Start-Sleep -Seconds 2
+        
+        if (Test-WingetAvailable) {
+            $version = winget --version
+            Write-Log "Winget 설치 완료: $version" -Level SUCCESS
+            
+            # 임시 파일 정리
+            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+            
+            return $true
+        } else {
+            Write-Log "Winget 설치 후 확인 실패" -Level ERROR
+            return $false
+        }
+
+    } catch {
+        Write-Log "Winget 설치 중 오류: $($_.Exception.Message)" -Level ERROR
+        Write-Log "Microsoft Store에서 '앱 설치 관리자'를 수동으로 설치하세요." -Level WARNING
+        return $false
+    }
+}
+
 function Install-WingetPackage {
     param(
         [string]$PackageId,
@@ -89,12 +174,6 @@ function Search-WingetPackage {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    if (Test-WingetAvailable) {
-        Write-Log "Winget이 사용 가능합니다." -Level SUCCESS
-        $version = winget --version
-        Write-Log "버전: $version" -Level INFO
-    } else {
-        Write-Log "Winget을 사용할 수 없습니다." -Level WARNING
-        Write-Log "Microsoft Store에서 '앱 설치 관리자'를 설치하거나 Windows를 업데이트하세요." -Level INFO
-    }
+    # Winget 자동 설치 시도
+    Install-Winget
 }
