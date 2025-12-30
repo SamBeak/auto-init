@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Java 및 빌드 도구 설치
 # ============================================
 
@@ -119,8 +119,26 @@ function Set-JavaEnvironment {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-Java
+    $javaResult = Install-Java
+    if ($javaResult) {
+        Add-InstallResult -ToolName "Java (OpenJDK)" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Java (OpenJDK)" -Status Failed -Message "설치 실패"
+    }
+    
     Set-JavaEnvironment
-    Install-Maven
-    Install-Gradle
+    
+    $mavenResult = Install-Maven
+    if ($mavenResult) {
+        Add-InstallResult -ToolName "Maven" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Maven" -Status Failed -Message "설치 실패"
+    }
+    
+    $gradleResult = Install-Gradle
+    if ($gradleResult) {
+        Add-InstallResult -ToolName "Gradle" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Gradle" -Status Failed -Message "설치 실패"
+    }
 }

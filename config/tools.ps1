@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # 추가 개발 도구 설치
 # ============================================
 
@@ -235,11 +235,24 @@ function Install-Browsers {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-PowerShell7
-    Install-WindowsTerminal
-    Install-OhMyPosh
+    $ps7Result = Install-PowerShell7
+    if ($ps7Result) { Add-InstallResult -ToolName "PowerShell 7" -Status Success }
+    else { Add-InstallResult -ToolName "PowerShell 7" -Status Failed -Message "설치 실패" }
+    
+    $wtResult = Install-WindowsTerminal
+    if ($wtResult) { Add-InstallResult -ToolName "Windows Terminal" -Status Success }
+    else { Add-InstallResult -ToolName "Windows Terminal" -Status Failed -Message "설치 실패" }
+    
+    $ompResult = Install-OhMyPosh
+    if ($ompResult) { Add-InstallResult -ToolName "Oh My Posh" -Status Success }
+    else { Add-InstallResult -ToolName "Oh My Posh" -Status Failed -Message "설치 실패" }
+    
     Set-OhMyPoshProfile
-    Install-Postman
+    
+    $postmanResult = Install-Postman
+    if ($postmanResult) { Add-InstallResult -ToolName "Postman" -Status Success }
+    else { Add-InstallResult -ToolName "Postman" -Status Failed -Message "설치 실패" }
+    
     Install-HeidiSQL
     Install-NotepadPlusPlus
     Install-Figma

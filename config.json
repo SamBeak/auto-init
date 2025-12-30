@@ -1,0 +1,99 @@
+{
+    "$schema": "./config-schema.json",
+    "version": "1.0.0",
+    "description": "Windows 개발 환경 자동 설치 설정 파일",
+    
+    "mode": "interactive",
+    
+    "profile": "fullstack",
+    
+    "tools": {
+        "packageManagers": {
+            "chocolatey": true,
+            "winget": true
+        },
+        "git": {
+            "enabled": true,
+            "githubCLI": true
+        },
+        "node": {
+            "enabled": true,
+            "version": "22.12.0",
+            "packageManagers": ["npm", "yarn", "pnpm"]
+        },
+        "python": {
+            "enabled": true,
+            "version": "3.12",
+            "tools": ["pipx", "poetry"]
+        },
+        "java": {
+            "enabled": true,
+            "version": "17",
+            "tools": ["maven", "gradle"]
+        },
+        "docker": {
+            "enabled": true,
+            "wsl2": true,
+            "ubuntu": true
+        },
+        "vscode": {
+            "enabled": true,
+            "extensions": true,
+            "settings": true
+        },
+        "egovframework": {
+            "enabled": false,
+            "version": "3.10"
+        }
+    },
+    
+    "databases": {
+        "postgresql": {
+            "enabled": true,
+            "port": 5432,
+            "username": "postgres",
+            "password": "postgres"
+        },
+        "mysql": {
+            "enabled": true,
+            "port": 3306,
+            "username": "root",
+            "password": "root"
+        },
+        "mongodb": {
+            "enabled": true,
+            "port": 27017,
+            "username": "admin",
+            "password": "admin"
+        },
+        "redis": {
+            "enabled": true,
+            "port": 6379,
+            "password": ""
+        }
+    },
+    
+    "additionalTools": {
+        "powershell7": true,
+        "windowsTerminal": true,
+        "ohMyPosh": true,
+        "postman": true,
+        "heidiSQL": true,
+        "notepadPlusPlus": true,
+        "figma": false,
+        "chrome": true
+    },
+    
+    "linters": {
+        "prettier": true,
+        "eslint": true,
+        "stylelint": false
+    },
+    
+    "options": {
+        "skipPrerequisiteCheck": false,
+        "autoRestart": false,
+        "createBackup": true,
+        "verboseLogging": false
+    }
+}

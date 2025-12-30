@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Visual Studio Code 설치 및 설정
 # ============================================
 
@@ -178,7 +178,13 @@ function Set-VSCodeSettings {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-VSCode
+    $vscodeResult = Install-VSCode
+    if ($vscodeResult) {
+        Add-InstallResult -ToolName "VS Code" -Status Success
+    } else {
+        Add-InstallResult -ToolName "VS Code" -Status Failed -Message "설치 실패"
+    }
+    
     Install-VSCodeExtensions
     Set-VSCodeSettings
 }

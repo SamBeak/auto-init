@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Windows 풀스택 개발 환경 자동 설치 시스템
 # Version: 1.0.0
 # ============================================
@@ -36,28 +36,155 @@ if (-not $prerequisitesOk) {
 
 function Show-MainMenu {
     Write-Host "`n" -NoNewline
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "    설치 모드 선택" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  [1] 빠른 설치 (풀스택 개발자 - 모든 도구)" -ForegroundColor White
-    Write-Host "  [2] 프론트엔드 개발자" -ForegroundColor White
-    Write-Host "  [3] 백엔드 개발자" -ForegroundColor White
-    Write-Host "  [4] 데이터 엔지니어" -ForegroundColor White
-    Write-Host "  [5] 사용자 정의 선택" -ForegroundColor White
-    Write-Host "  [6] 설치 검증만 실행" -ForegroundColor Yellow
-    Write-Host "  [7] 헬스 체크 (서비스 상태 확인)" -ForegroundColor Yellow
-    Write-Host "  [8] 오프라인 설치 모드" -ForegroundColor Magenta
-    Write-Host "  [9] 오프라인 캐시 다운로드" -ForegroundColor Magenta
-    Write-Host "  [0] 종료" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "╔═══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║                    메인 메뉴                                  ║" -ForegroundColor Cyan
+    Write-Host "╠═══════════════════════════════════════════════════════════════╣" -ForegroundColor Cyan
+    Write-Host "║  설치 모드                                                    ║" -ForegroundColor Cyan
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  [1] 빠른 설치 (풀스택 개발자)    [2] 프론트엔드 개발자       ║" -ForegroundColor White
+    Write-Host "║  [3] 백엔드 개발자                [4] 데이터 엔지니어         ║" -ForegroundColor White
+    Write-Host "║  [5] 사용자 정의 선택             [6] 버전 선택 후 설치       ║" -ForegroundColor White
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  도구                                                         ║" -ForegroundColor Yellow
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  [7] 설치 검증                    [8] 헬스 체크               ║" -ForegroundColor Yellow
+    Write-Host "║  [9] 도구 업데이트                [A] 프로젝트 템플릿 생성    ║" -ForegroundColor Yellow
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  고급 기능                                                    ║" -ForegroundColor Magenta
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  [B] 오프라인 설치 모드           [C] 오프라인 캐시 다운로드  ║" -ForegroundColor Magenta
+    Write-Host "║  [D] 환경 내보내기/가져오기       [E] 무인 설치 (config.json) ║" -ForegroundColor Magenta
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  테스트 모드                                                  ║" -ForegroundColor Green
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  [F] DRY-RUN 모드 (시뮬레이션)     [G] 개별 스크립트 테스트    ║" -ForegroundColor Green
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  [0] 종료                                                     ║" -ForegroundColor Red
+    Write-Host "╚═══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 }
 
 function Get-UserChoice {
-    $choice = Read-Host "선택 (0-9)"
-    return $choice
+    $choice = Read-Host "선택"
+    return $choice.ToUpper()
+}
+
+# ============================================
+# 테스트 모드 함수들
+# ============================================
+
+function Test-IndividualScripts {
+    Write-Host "`n테스트할 스크립트를 선택하세요:`n" -ForegroundColor Cyan
+    
+    $scripts = @{
+        "1" = @{ Name = "Chocolatey"; Path = "$ScriptRoot\config\chocolatey.ps1" }
+        "2" = @{ Name = "Git"; Path = "$ScriptRoot\config\git.ps1" }
+        "3" = @{ Name = "Node.js"; Path = "$ScriptRoot\config\node.ps1" }
+        "4" = @{ Name = "Python"; Path = "$ScriptRoot\config\python.ps1" }
+        "5" = @{ Name = "Java"; Path = "$ScriptRoot\config\java.ps1" }
+        "6" = @{ Name = "Docker"; Path = "$ScriptRoot\config\docker.ps1" }
+        "7" = @{ Name = "VS Code"; Path = "$ScriptRoot\config\vscode.ps1" }
+        "8" = @{ Name = "추가 도구"; Path = "$ScriptRoot\config\tools.ps1" }
+        "9" = @{ Name = "린터"; Path = "$ScriptRoot\config\linters.ps1" }
+        "0" = @{ Name = "취소"; Path = $null }
+    }
+    
+    foreach ($key in $scripts.Keys | Sort-Object) {
+        if ($scripts[$key].Name -ne "취소") {
+            Write-Host "  [$key] $($scripts[$key].Name)" -ForegroundColor White
+        } else {
+            Write-Host "  [$key] $($scripts[$key].Name)" -ForegroundColor Red
+        }
+    }
+    
+    $choice = Read-Host "`n선택"
+    if ($choice -eq "0") { return }
+    
+    if ($scripts.ContainsKey($choice)) {
+        $script = $scripts[$choice]
+        Write-Host "`n$($script.Name) 스크립트를 테스트합니다..." -ForegroundColor Yellow
+        
+        try {
+            # Syntax check only
+            $errors = $null
+            [System.Management.Automation.PSParser]::Tokenize((Get-Content $script.Path -Raw), [ref]$errors)
+            
+            if ($errors.Count -eq 0) {
+                Write-Host "✅ Syntax 검사 통과" -ForegroundColor Green
+            } else {
+                Write-Host "❌ Syntax 오류 발견:" -ForegroundColor Red
+                $errors | ForEach-Object { Write-Host "  $($_.Message)" -ForegroundColor Red }
+            }
+            
+            # Function existence check
+            $content = Get-Content $script.Path -Raw
+            $functions = [regex]::Matches($content, 'function\s+(\w+)')
+            Write-Host "`n함수 목록:" -ForegroundColor Cyan
+            $functions | ForEach-Object { Write-Host "  - $($_.Groups[1].Value)" -ForegroundColor White }
+            
+        } catch {
+            Write-Host "❌ 스크립트 로드 실패: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "잘못된 선택입니다." -ForegroundColor Red
+    }
+    
+    Read-Host "`n계속하려면 Enter를 누르세요"
+}
+
+function Start-DryRun {
+    Write-Host "`n🔍 DRY-RUN 모드: 실제 설치는 하지 않고 시뮬레이션만 합니다.`n" -ForegroundColor Yellow
+    
+    $selectedProfile = Read-Host "테스트할 프로필을 선택하세요 (1: 풀스택, 2: 프론트엔드, 3: 백엔드, 4: 데이터엔지니어)"
+    
+    switch ($selectedProfile) {
+        "1" { $profileName = "풀스택 개발자" }
+        "2" { $profileName = "프론트엔드 개발자" }
+        "3" { $profileName = "백엔드 개발자" }
+        "4" { $profileName = "데이터 엔지니어" }
+        default { Write-Host "잘못된 선택입니다."; return }
+    }
+    
+    Write-Host "`n📋 $profileName 프로필 설치 시뮬레이션:`n" -ForegroundColor Cyan
+    
+    $steps = @(
+        "Chocolatey 패키지 관리자 설치",
+        "Git 및 GitHub CLI 설치",
+        "Node.js 및 npm/yarn/pnpm 설치",
+        "Python 및 pip/poetry 설치",
+        "Java (OpenJDK) 및 Maven/Gradle 설치",
+        "Docker Desktop 설치",
+        "Visual Studio Code 및 확장 설치",
+        "데이터베이스 (PostgreSQL, MySQL, MongoDB, Redis) 설치",
+        "추가 도구 (Postman, HeidiSQL 등) 설치",
+        "코드 품질 도구 (Prettier, ESLint) 설치"
+    )
+    
+    $totalSteps = $steps.Count
+    for ($i = 0; $i -lt $totalSteps; $i++) {
+        $stepNum = $i + 1
+        $percent = [math]::Round(($stepNum / $totalSteps) * 100)
+        
+        Write-Host "[$stepNum/$totalSteps] $($steps[$i])" -NoNewline -ForegroundColor White
+        Start-Sleep -Milliseconds 500
+        Write-Host " ... " -NoNewline -ForegroundColor Yellow
+        Start-Sleep -Milliseconds 300
+        Write-Host "✅ SIMULATED" -ForegroundColor Green
+        
+        # 진행률 바 표시
+        $barWidth = 30
+        $filled = [math]::Round($barWidth * $percent / 100)
+        $empty = $barWidth - $filled
+        Write-Host "  [" -NoNewline -ForegroundColor Gray
+        Write-Host ("█" * $filled) -NoNewline -ForegroundColor Green
+        Write-Host ("░" * $empty) -NoNewline -ForegroundColor DarkGray
+        Write-Host "] $percent%" -ForegroundColor Yellow
+    }
+    
+    Write-Host "`n🎉 시뮬레이션 완료! 실제 설치는 하지 않았습니다." -ForegroundColor Green
+    Write-Host "💡 실제 설치를 하려면 메뉴에서 해당 프로필을 선택하세요." -ForegroundColor Cyan
+    
+    Read-Host "`n계속하려면 Enter를 누르세요"
 }
 
 # ============================================
@@ -502,23 +629,64 @@ function Start-Installation {
                 break
             }
             "6" {
+                Write-Log "버전 선택 모드 실행" -Level INFO
+                . "$ScriptRoot\scripts\version-selector.ps1"
+                $versions = Start-VersionSelection
+                if ($versions.NodeJS) {
+                    . "$ScriptRoot\config\node.ps1"
+                    Install-NVM
+                    Install-NodeJS -Version $versions.NodeJS
+                }
+                continue
+            }
+            "7" {
                 Write-Log "설치 검증 실행" -Level INFO
                 & "$ScriptRoot\scripts\validator.ps1"
                 continue
             }
-            "7" {
+            "8" {
                 Write-Log "헬스 체크 실행" -Level INFO
                 & "$ScriptRoot\scripts\health-check.ps1"
                 continue
             }
-            "8" {
+            "9" {
+                Write-Log "도구 업데이트 실행" -Level INFO
+                & "$ScriptRoot\scripts\update-tools.ps1"
+                continue
+            }
+            "A" {
+                Write-Log "프로젝트 템플릿 생성기 실행" -Level INFO
+                & "$ScriptRoot\scripts\project-template.ps1"
+                continue
+            }
+            "B" {
                 Write-Log "오프라인 설치 모드 실행" -Level INFO
                 & "$ScriptRoot\scripts\offline-install.ps1"
                 continue
             }
-            "9" {
+            "C" {
                 Write-Log "오프라인 캐시 다운로드 실행" -Level INFO
                 & "$ScriptRoot\scripts\cache-manager.ps1"
+                continue
+            }
+            "D" {
+                Write-Log "환경 관리 실행" -Level INFO
+                & "$ScriptRoot\scripts\environment-manager.ps1"
+                continue
+            }
+            "E" {
+                Write-Log "무인 설치 모드 실행" -Level INFO
+                & "$ScriptRoot\scripts\unattended-install.ps1"
+                continue
+            }
+            "F" {
+                Write-Log "DRY-RUN 모드 실행" -Level INFO
+                Start-DryRun
+                continue
+            }
+            "G" {
+                Write-Log "개별 스크립트 테스트 실행" -Level INFO
+                Test-IndividualScripts
                 continue
             }
             "0" {

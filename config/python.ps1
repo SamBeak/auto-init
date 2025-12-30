@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Python 설치 및 설정
 # ============================================
 
@@ -149,9 +149,27 @@ function Set-PythonConfiguration {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-Python
-    Install-Pipx
-    Install-Poetry
+    $pythonResult = Install-Python
+    if ($pythonResult) {
+        Add-InstallResult -ToolName "Python" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Python" -Status Failed -Message "설치 실패"
+    }
+    
+    $pipxResult = Install-Pipx
+    if ($pipxResult) {
+        Add-InstallResult -ToolName "pipx" -Status Success
+    } else {
+        Add-InstallResult -ToolName "pipx" -Status Failed -Message "설치 실패"
+    }
+    
+    $poetryResult = Install-Poetry
+    if ($poetryResult) {
+        Add-InstallResult -ToolName "Poetry" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Poetry" -Status Failed -Message "설치 실패"
+    }
+    
     Install-GlobalPipPackages
     Set-PythonConfiguration
 }

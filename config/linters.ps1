@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # 코드 품질 도구 설치 (Prettier, ESLint 등)
 # ============================================
 
@@ -173,8 +173,14 @@ function Install-StylelintIfNeeded {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-Prettier
-    Install-ESLint
+    $prettierResult = Install-Prettier
+    if ($prettierResult) { Add-InstallResult -ToolName "Prettier" -Status Success }
+    else { Add-InstallResult -ToolName "Prettier" -Status Failed -Message "설치 실패" }
+    
+    $eslintResult = Install-ESLint
+    if ($eslintResult) { Add-InstallResult -ToolName "ESLint" -Status Success }
+    else { Add-InstallResult -ToolName "ESLint" -Status Failed -Message "설치 실패" }
+    
     Create-PrettierConfig
     Create-ESLintConfig
     Install-StylelintIfNeeded

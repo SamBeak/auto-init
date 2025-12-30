@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Docker Desktop 및 WSL2 설치
 # ============================================
 
@@ -145,9 +145,22 @@ function Set-DockerConfiguration {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-WSL2
+    $wslResult = Install-WSL2
+    if ($wslResult) {
+        Add-InstallResult -ToolName "WSL2" -Status Success
+    } else {
+        Add-InstallResult -ToolName "WSL2" -Status Failed -Message "설치 실패"
+    }
+    
     Install-UbuntuWSL
-    Install-DockerDesktop
+    
+    $dockerResult = Install-DockerDesktop
+    if ($dockerResult) {
+        Add-InstallResult -ToolName "Docker Desktop" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Docker Desktop" -Status Failed -Message "설치 실패"
+    }
+    
     Install-DockerCompose
     Set-DockerConfiguration
 }

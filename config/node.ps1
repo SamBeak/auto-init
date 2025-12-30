@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Node.js 및 패키지 매니저 설치 (nvm 기반)
 # ============================================
 
@@ -208,10 +208,34 @@ function Set-NpmConfiguration {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-NVM
-    Install-NodeJS -Version "22.12.0"
-    Install-Yarn
-    Install-Pnpm
+    $nvmResult = Install-NVM
+    if ($nvmResult) {
+        Add-InstallResult -ToolName "nvm-windows" -Status Success
+    } else {
+        Add-InstallResult -ToolName "nvm-windows" -Status Failed -Message "설치 실패"
+    }
+    
+    $nodeResult = Install-NodeJS -Version "22.12.0"
+    if ($nodeResult) {
+        Add-InstallResult -ToolName "Node.js" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Node.js" -Status Failed -Message "설치 실패"
+    }
+    
+    $yarnResult = Install-Yarn
+    if ($yarnResult) {
+        Add-InstallResult -ToolName "Yarn" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Yarn" -Status Failed -Message "설치 실패"
+    }
+    
+    $pnpmResult = Install-Pnpm
+    if ($pnpmResult) {
+        Add-InstallResult -ToolName "pnpm" -Status Success
+    } else {
+        Add-InstallResult -ToolName "pnpm" -Status Failed -Message "설치 실패"
+    }
+    
     Install-GlobalNpmPackages
     Set-NpmConfiguration
 

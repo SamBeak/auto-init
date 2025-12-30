@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Git 설치 및 설정
 # ============================================
 
@@ -107,6 +107,17 @@ function Install-GitHubCLI {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-Git
-    Install-GitHubCLI
+    $gitResult = Install-Git
+    if ($gitResult) {
+        Add-InstallResult -ToolName "Git" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Git" -Status Failed -Message "설치 실패"
+    }
+    
+    $ghResult = Install-GitHubCLI
+    if ($ghResult) {
+        Add-InstallResult -ToolName "GitHub CLI" -Status Success
+    } else {
+        Add-InstallResult -ToolName "GitHub CLI" -Status Failed -Message "설치 실패"
+    }
 }

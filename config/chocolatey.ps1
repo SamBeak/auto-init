@@ -1,4 +1,4 @@
-# ============================================
+﻿# ============================================
 # Chocolatey 패키지 관리자 설치 및 설정
 # ============================================
 
@@ -98,5 +98,10 @@ function Update-ChocolateyPackages {
 
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
-    Install-Chocolatey
+    $result = Install-Chocolatey
+    if ($result) {
+        Add-InstallResult -ToolName "Chocolatey" -Status Success
+    } else {
+        Add-InstallResult -ToolName "Chocolatey" -Status Failed -Message "설치 실패"
+    }
 }
