@@ -326,7 +326,223 @@ function Update-InstallProgress {
 }
 
 # ============================================
-# 설치 프로파일
+# 설치 프로파일 정의
+# ============================================
+
+$global:InstallProfiles = @{
+    "FullStack" = @{
+        Name = "풀스택 개발자"
+        Description = "웹 프론트엔드, 백엔드, 데이터베이스를 포함한 전체 개발 환경"
+        Categories = @(
+            @{
+                Name = "패키지 관리자"
+                Items = @("Chocolatey", "Winget")
+            },
+            @{
+                Name = "버전 관리"
+                Items = @("Git", "GitHub CLI")
+            },
+            @{
+                Name = "런타임 & 언어"
+                Items = @("Node.js (NVM)", "npm/yarn/pnpm", "Python", "pip/poetry", "Java (OpenJDK)", "Maven/Gradle")
+            },
+            @{
+                Name = "컨테이너"
+                Items = @("Docker Desktop")
+            },
+            @{
+                Name = "IDE & 에디터"
+                Items = @("Visual Studio Code", "VS Code 확장 프로그램")
+            },
+            @{
+                Name = "프레임워크"
+                Items = @("전자정부프레임워크 3.10")
+            },
+            @{
+                Name = "데이터베이스"
+                Items = @("PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite Studio")
+            },
+            @{
+                Name = "개발 도구"
+                Items = @("Postman", "HeidiSQL", "Oh My Posh", "ngrok")
+            },
+            @{
+                Name = "DevOps & 클라우드"
+                Items = @("kubectl")
+            },
+            @{
+                Name = "코드 품질"
+                Items = @("Prettier", "ESLint")
+            }
+        )
+    }
+    "Frontend" = @{
+        Name = "프론트엔드 개발자"
+        Description = "웹 프론트엔드 개발에 필요한 환경"
+        Categories = @(
+            @{
+                Name = "패키지 관리자"
+                Items = @("Chocolatey")
+            },
+            @{
+                Name = "버전 관리"
+                Items = @("Git", "GitHub CLI")
+            },
+            @{
+                Name = "런타임 & 언어"
+                Items = @("Node.js (NVM)", "npm/yarn/pnpm")
+            },
+            @{
+                Name = "IDE & 에디터"
+                Items = @("Visual Studio Code", "VS Code 확장 프로그램")
+            },
+            @{
+                Name = "개발 도구"
+                Items = @("Postman", "Oh My Posh", "ngrok")
+            },
+            @{
+                Name = "코드 품질"
+                Items = @("Prettier", "ESLint")
+            }
+        )
+    }
+    "Backend" = @{
+        Name = "백엔드 개발자"
+        Description = "서버 개발 및 데이터베이스 환경"
+        Categories = @(
+            @{
+                Name = "패키지 관리자"
+                Items = @("Chocolatey")
+            },
+            @{
+                Name = "버전 관리"
+                Items = @("Git", "GitHub CLI")
+            },
+            @{
+                Name = "런타임 & 언어"
+                Items = @("Node.js (NVM)", "npm/yarn/pnpm", "Python", "pip/poetry", "Java (OpenJDK)", "Maven/Gradle")
+            },
+            @{
+                Name = "컨테이너"
+                Items = @("Docker Desktop")
+            },
+            @{
+                Name = "IDE & 에디터"
+                Items = @("Visual Studio Code", "VS Code 확장 프로그램")
+            },
+            @{
+                Name = "데이터베이스"
+                Items = @("PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite Studio")
+            },
+            @{
+                Name = "개발 도구"
+                Items = @("Postman", "HeidiSQL", "ngrok")
+            },
+            @{
+                Name = "DevOps & 클라우드"
+                Items = @("kubectl")
+            }
+        )
+    }
+    "DataEngineer" = @{
+        Name = "데이터 엔지니어"
+        Description = "데이터 처리 및 분석 환경"
+        Categories = @(
+            @{
+                Name = "패키지 관리자"
+                Items = @("Chocolatey")
+            },
+            @{
+                Name = "버전 관리"
+                Items = @("Git", "GitHub CLI")
+            },
+            @{
+                Name = "런타임 & 언어"
+                Items = @("Python", "pip/poetry", "Jupyter Notebook")
+            },
+            @{
+                Name = "컨테이너"
+                Items = @("Docker Desktop")
+            },
+            @{
+                Name = "IDE & 에디터"
+                Items = @("Visual Studio Code", "VS Code 확장 프로그램")
+            },
+            @{
+                Name = "데이터베이스"
+                Items = @("PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite Studio")
+            },
+            @{
+                Name = "빅데이터 도구"
+                Items = @("Apache Spark")
+            },
+            @{
+                Name = "DevOps & 클라우드"
+                Items = @("kubectl")
+            }
+        )
+    }
+}
+
+function Show-ProfileDetails {
+    param(
+        [string]$ProfileKey
+    )
+    
+    $profile = $global:InstallProfiles[$ProfileKey]
+    if (-not $profile) {
+        Write-Host "프로필을 찾을 수 없습니다." -ForegroundColor Red
+        return $false
+    }
+    
+    Write-Host "`n" -NoNewline
+    Write-Host "╔═══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║  " -ForegroundColor Cyan -NoNewline
+    Write-Host "$($profile.Name)" -ForegroundColor Yellow -NoNewline
+    Write-Host " 설치 항목" -ForegroundColor White -NoNewline
+    $padding = 47 - $profile.Name.Length
+    Write-Host (" " * $padding) -NoNewline
+    Write-Host "║" -ForegroundColor Cyan
+    Write-Host "╠═══════════════════════════════════════════════════════════════╣" -ForegroundColor Cyan
+    Write-Host "║  " -ForegroundColor Cyan -NoNewline
+    Write-Host "$($profile.Description)" -ForegroundColor Gray -NoNewline
+    $descPadding = 60 - $profile.Description.Length
+    if ($descPadding -lt 0) { $descPadding = 0 }
+    Write-Host (" " * $descPadding) -NoNewline
+    Write-Host "║" -ForegroundColor Cyan
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    
+    $totalItems = 0
+    foreach ($category in $profile.Categories) {
+        Write-Host "║  " -ForegroundColor Cyan -NoNewline
+        Write-Host "📦 $($category.Name)" -ForegroundColor Green -NoNewline
+        $catPadding = 57 - $category.Name.Length
+        Write-Host (" " * $catPadding) -NoNewline
+        Write-Host "║" -ForegroundColor Cyan
+        
+        foreach ($item in $category.Items) {
+            Write-Host "║     " -ForegroundColor Cyan -NoNewline
+            Write-Host "• $item" -ForegroundColor White -NoNewline
+            $itemPadding = 56 - $item.Length
+            Write-Host (" " * $itemPadding) -NoNewline
+            Write-Host "║" -ForegroundColor Cyan
+            $totalItems++
+        }
+        Write-Host "║" -ForegroundColor Cyan
+    }
+    
+    Write-Host "╟───────────────────────────────────────────────────────────────╢" -ForegroundColor DarkCyan
+    Write-Host "║  " -ForegroundColor Cyan -NoNewline
+    Write-Host "총 $totalItems 개 항목이 설치됩니다" -ForegroundColor Yellow -NoNewline
+    Write-Host "                                      ║" -ForegroundColor Cyan
+    Write-Host "╚═══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    
+    return Confirm-Action "이 항목들을 설치하시겠습니까?" -DefaultYes $true
+}
+
+# ============================================
+# 설치 프로파일 함수
 # ============================================
 
 function Install-FullStack {
@@ -605,22 +821,42 @@ function Start-Installation {
         switch ($choice) {
             "1" {
                 Write-Log "풀스택 개발자 모드 선택" -Level INFO
-                Install-FullStack
+                if (Show-ProfileDetails -ProfileKey "FullStack") {
+                    Install-FullStack
+                } else {
+                    Write-Log "설치가 취소되었습니다." -Level INFO
+                    continue
+                }
                 break
             }
             "2" {
                 Write-Log "프론트엔드 개발자 모드 선택" -Level INFO
-                Install-Frontend
+                if (Show-ProfileDetails -ProfileKey "Frontend") {
+                    Install-Frontend
+                } else {
+                    Write-Log "설치가 취소되었습니다." -Level INFO
+                    continue
+                }
                 break
             }
             "3" {
                 Write-Log "백엔드 개발자 모드 선택" -Level INFO
-                Install-Backend
+                if (Show-ProfileDetails -ProfileKey "Backend") {
+                    Install-Backend
+                } else {
+                    Write-Log "설치가 취소되었습니다." -Level INFO
+                    continue
+                }
                 break
             }
             "4" {
                 Write-Log "데이터 엔지니어 모드 선택" -Level INFO
-                Install-DataEngineer
+                if (Show-ProfileDetails -ProfileKey "DataEngineer") {
+                    Install-DataEngineer
+                } else {
+                    Write-Log "설치가 취소되었습니다." -Level INFO
+                    continue
+                }
                 break
             }
             "5" {

@@ -233,6 +233,77 @@ function Install-Browsers {
     Write-Log "브라우저 설치 완료" -Level SUCCESS
 }
 
+function Install-Kubectl {
+    Write-Log "kubectl 설치를 시작합니다..." -Level INFO
+
+    if (Test-ProgramInstalled -CommandCheck "kubectl") {
+        $version = kubectl version --client --short 2>$null
+        if (-not $version) {
+            $version = kubectl version --client -o json 2>$null | ConvertFrom-Json | Select-Object -ExpandProperty clientVersion | Select-Object -ExpandProperty gitVersion
+        }
+        Write-Log "kubectl이 이미 설치되어 있습니다: $version" -Level SUCCESS
+        return $true
+    }
+
+    # Chocolatey로 설치
+    $result = Install-ChocolateyPackage -PackageName "kubernetes-cli"
+
+    if ($result) {
+        # 환경 변수 새로고침
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Write-Log "kubectl 설치 완료" -Level SUCCESS
+        return $true
+    }
+
+    return $false
+}
+
+function Install-Ngrok {
+    Write-Log "ngrok 설치를 시작합니다..." -Level INFO
+
+    if (Test-ProgramInstalled -CommandCheck "ngrok") {
+        $version = ngrok version 2>$null
+        Write-Log "ngrok이 이미 설치되어 있습니다: $version" -Level SUCCESS
+        return $true
+    }
+
+    # Chocolatey로 설치
+    $result = Install-ChocolateyPackage -PackageName "ngrok"
+
+    if ($result) {
+        # 환경 변수 새로고침
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Write-Log "ngrok 설치 완료" -Level SUCCESS
+        Write-Log "팅: ngrok 사용을 위해 'ngrok config add-authtoken <YOUR_TOKEN>'으로 인증하세요." -Level INFO
+        Write-Log "토큰 발급: https://dashboard.ngrok.com/get-started/your-authtoken" -Level INFO
+        return $true
+    }
+
+    return $false
+}
+
+function Install-Obsidian {
+    Write-Log "Obsidian 설치를 시작합니다..." -Level INFO
+
+    if (Test-ProgramInstalled -ProgramName "Obsidian") {
+        Write-Log "Obsidian이 이미 설치되어 있습니다." -Level SUCCESS
+        return $true
+    }
+
+    # Chocolatey로 설치
+    $result = Install-ChocolateyPackage -PackageName "obsidian"
+
+    if ($result) {
+        # 환경 변수 새로고침
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Write-Log "Obsidian 설치 완료" -Level SUCCESS
+        Write-Log "팁: Obsidian은 마크다운 기반의 지식 관리 도구입니다." -Level INFO
+        return $true
+    }
+
+    return $false
+}
+
 # 메인 실행
 if ($MyInvocation.InvocationName -ne '.') {
     $ps7Result = Install-PowerShell7
@@ -257,4 +328,16 @@ if ($MyInvocation.InvocationName -ne '.') {
     Install-NotepadPlusPlus
     Install-Figma
     Install-Browsers
+    
+    $kubectlResult = Install-Kubectl
+    if ($kubectlResult) { Add-InstallResult -ToolName "kubectl" -Status Success }
+    else { Add-InstallResult -ToolName "kubectl" -Status Failed -Message "설치 실패" }
+    
+    $ngrokResult = Install-Ngrok
+    if ($ngrokResult) { Add-InstallResult -ToolName "ngrok" -Status Success }
+    else { Add-InstallResult -ToolName "ngrok" -Status Failed -Message "설치 실패" }
+    
+    $obsidianResult = Install-Obsidian
+    if ($obsidianResult) { Add-InstallResult -ToolName "Obsidian" -Status Success }
+    else { Add-InstallResult -ToolName "Obsidian" -Status Failed -Message "설치 실패" }
 }

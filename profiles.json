@@ -1,0 +1,401 @@
+{
+    "$schema": "./profiles-schema.json",
+    "version": "1.0.0",
+    "profiles": {
+        "fullstack": {
+            "name": "풀스택 개발자",
+            "description": "웹 프론트엔드, 백엔드, 데이터베이스를 포함한 전체 개발 환경",
+            "estimatedTime": 45,
+            "estimatedDiskSpace": 15,
+            "categories": [
+                {
+                    "name": "패키지 관리자",
+                    "icon": "📦",
+                    "tools": [
+                        { "id": "chocolatey", "name": "Chocolatey", "required": true, "size": 50 },
+                        { "id": "winget", "name": "Winget", "required": false, "size": 0 }
+                    ]
+                },
+                {
+                    "name": "버전 관리",
+                    "icon": "🔀",
+                    "tools": [
+                        { "id": "git", "name": "Git", "required": true, "size": 300 },
+                        { "id": "github-cli", "name": "GitHub CLI", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "런타임 & 언어",
+                    "icon": "⚙️",
+                    "tools": [
+                        { "id": "nvm", "name": "Node.js (NVM)", "required": true, "size": 500 },
+                        { "id": "npm", "name": "npm/yarn/pnpm", "required": true, "size": 100 },
+                        { "id": "python", "name": "Python", "required": true, "size": 400 },
+                        { "id": "pip", "name": "pip/poetry", "required": true, "size": 50 },
+                        { "id": "java", "name": "Java (OpenJDK)", "required": true, "size": 600 },
+                        { "id": "maven", "name": "Maven/Gradle", "required": true, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "컨테이너",
+                    "icon": "🐳",
+                    "tools": [
+                        { "id": "docker", "name": "Docker Desktop", "required": true, "size": 2000 }
+                    ]
+                },
+                {
+                    "name": "IDE & 에디터",
+                    "icon": "💻",
+                    "tools": [
+                        { "id": "vscode", "name": "Visual Studio Code", "required": true, "size": 400 },
+                        { "id": "vscode-extensions", "name": "VS Code 확장 프로그램", "required": false, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "프레임워크",
+                    "icon": "🏗️",
+                    "tools": [
+                        { "id": "egovframework", "name": "전자정부프레임워크 3.10", "required": false, "size": 800 }
+                    ]
+                },
+                {
+                    "name": "데이터베이스",
+                    "icon": "🗄️",
+                    "tools": [
+                        { "id": "postgresql", "name": "PostgreSQL", "required": true, "size": 300 },
+                        { "id": "mysql", "name": "MySQL", "required": true, "size": 400 },
+                        { "id": "mongodb", "name": "MongoDB", "required": true, "size": 500 },
+                        { "id": "redis", "name": "Redis", "required": true, "size": 50 },
+                        { "id": "sqlite-studio", "name": "SQLite Studio", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "개발 도구",
+                    "icon": "🔧",
+                    "tools": [
+                        { "id": "postman", "name": "Postman", "required": false, "size": 300 },
+                        { "id": "heidisql", "name": "HeidiSQL", "required": false, "size": 50 },
+                        { "id": "oh-my-posh", "name": "Oh My Posh", "required": false, "size": 20 },
+                        { "id": "ngrok", "name": "ngrok", "required": false, "size": 30 }
+                    ]
+                },
+                {
+                    "name": "DevOps & 클라우드",
+                    "icon": "☁️",
+                    "tools": [
+                        { "id": "kubectl", "name": "kubectl", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "코드 품질",
+                    "icon": "✨",
+                    "tools": [
+                        { "id": "prettier", "name": "Prettier", "required": false, "size": 10 },
+                        { "id": "eslint", "name": "ESLint", "required": false, "size": 20 }
+                    ]
+                }
+            ],
+            "dependencies": {
+                "eslint": ["nvm"],
+                "prettier": ["nvm"],
+                "maven": ["java"],
+                "docker": ["wsl2"]
+            }
+        },
+        "frontend": {
+            "name": "프론트엔드 개발자",
+            "description": "웹 프론트엔드 개발에 필요한 환경",
+            "estimatedTime": 20,
+            "estimatedDiskSpace": 5,
+            "categories": [
+                {
+                    "name": "패키지 관리자",
+                    "icon": "📦",
+                    "tools": [
+                        { "id": "chocolatey", "name": "Chocolatey", "required": true, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "버전 관리",
+                    "icon": "🔀",
+                    "tools": [
+                        { "id": "git", "name": "Git", "required": true, "size": 300 },
+                        { "id": "github-cli", "name": "GitHub CLI", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "런타임 & 언어",
+                    "icon": "⚙️",
+                    "tools": [
+                        { "id": "nvm", "name": "Node.js (NVM)", "required": true, "size": 500 },
+                        { "id": "npm", "name": "npm/yarn/pnpm", "required": true, "size": 100 }
+                    ]
+                },
+                {
+                    "name": "IDE & 에디터",
+                    "icon": "💻",
+                    "tools": [
+                        { "id": "vscode", "name": "Visual Studio Code", "required": true, "size": 400 },
+                        { "id": "vscode-extensions", "name": "VS Code 확장 프로그램", "required": false, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "개발 도구",
+                    "icon": "🔧",
+                    "tools": [
+                        { "id": "postman", "name": "Postman", "required": false, "size": 300 },
+                        { "id": "oh-my-posh", "name": "Oh My Posh", "required": false, "size": 20 },
+                        { "id": "ngrok", "name": "ngrok", "required": false, "size": 30 }
+                    ]
+                },
+                {
+                    "name": "코드 품질",
+                    "icon": "✨",
+                    "tools": [
+                        { "id": "prettier", "name": "Prettier", "required": false, "size": 10 },
+                        { "id": "eslint", "name": "ESLint", "required": false, "size": 20 }
+                    ]
+                }
+            ],
+            "dependencies": {
+                "eslint": ["nvm"],
+                "prettier": ["nvm"]
+            }
+        },
+        "backend": {
+            "name": "백엔드 개발자",
+            "description": "서버 개발 및 데이터베이스 환경",
+            "estimatedTime": 35,
+            "estimatedDiskSpace": 12,
+            "categories": [
+                {
+                    "name": "패키지 관리자",
+                    "icon": "📦",
+                    "tools": [
+                        { "id": "chocolatey", "name": "Chocolatey", "required": true, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "버전 관리",
+                    "icon": "🔀",
+                    "tools": [
+                        { "id": "git", "name": "Git", "required": true, "size": 300 },
+                        { "id": "github-cli", "name": "GitHub CLI", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "런타임 & 언어",
+                    "icon": "⚙️",
+                    "tools": [
+                        { "id": "nvm", "name": "Node.js (NVM)", "required": true, "size": 500 },
+                        { "id": "npm", "name": "npm/yarn/pnpm", "required": true, "size": 100 },
+                        { "id": "python", "name": "Python", "required": true, "size": 400 },
+                        { "id": "pip", "name": "pip/poetry", "required": true, "size": 50 },
+                        { "id": "java", "name": "Java (OpenJDK)", "required": true, "size": 600 },
+                        { "id": "maven", "name": "Maven/Gradle", "required": true, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "컨테이너",
+                    "icon": "🐳",
+                    "tools": [
+                        { "id": "docker", "name": "Docker Desktop", "required": true, "size": 2000 }
+                    ]
+                },
+                {
+                    "name": "IDE & 에디터",
+                    "icon": "💻",
+                    "tools": [
+                        { "id": "vscode", "name": "Visual Studio Code", "required": true, "size": 400 },
+                        { "id": "vscode-extensions", "name": "VS Code 확장 프로그램", "required": false, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "데이터베이스",
+                    "icon": "🗄️",
+                    "tools": [
+                        { "id": "postgresql", "name": "PostgreSQL", "required": true, "size": 300 },
+                        { "id": "mysql", "name": "MySQL", "required": true, "size": 400 },
+                        { "id": "mongodb", "name": "MongoDB", "required": true, "size": 500 },
+                        { "id": "redis", "name": "Redis", "required": true, "size": 50 },
+                        { "id": "sqlite-studio", "name": "SQLite Studio", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "개발 도구",
+                    "icon": "🔧",
+                    "tools": [
+                        { "id": "postman", "name": "Postman", "required": false, "size": 300 },
+                        { "id": "heidisql", "name": "HeidiSQL", "required": false, "size": 50 },
+                        { "id": "ngrok", "name": "ngrok", "required": false, "size": 30 }
+                    ]
+                },
+                {
+                    "name": "DevOps & 클라우드",
+                    "icon": "☁️",
+                    "tools": [
+                        { "id": "kubectl", "name": "kubectl", "required": false, "size": 50 }
+                    ]
+                }
+            ],
+            "dependencies": {
+                "maven": ["java"],
+                "docker": ["wsl2"]
+            }
+        },
+        "data-engineer": {
+            "name": "데이터 엔지니어",
+            "description": "데이터 처리 및 분석 환경",
+            "estimatedTime": 30,
+            "estimatedDiskSpace": 10,
+            "categories": [
+                {
+                    "name": "패키지 관리자",
+                    "icon": "📦",
+                    "tools": [
+                        { "id": "chocolatey", "name": "Chocolatey", "required": true, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "버전 관리",
+                    "icon": "🔀",
+                    "tools": [
+                        { "id": "git", "name": "Git", "required": true, "size": 300 },
+                        { "id": "github-cli", "name": "GitHub CLI", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "런타임 & 언어",
+                    "icon": "⚙️",
+                    "tools": [
+                        { "id": "python", "name": "Python", "required": true, "size": 400 },
+                        { "id": "pip", "name": "pip/poetry", "required": true, "size": 50 },
+                        { "id": "jupyter", "name": "Jupyter Notebook", "required": true, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "컨테이너",
+                    "icon": "🐳",
+                    "tools": [
+                        { "id": "docker", "name": "Docker Desktop", "required": true, "size": 2000 }
+                    ]
+                },
+                {
+                    "name": "IDE & 에디터",
+                    "icon": "💻",
+                    "tools": [
+                        { "id": "vscode", "name": "Visual Studio Code", "required": true, "size": 400 },
+                        { "id": "vscode-extensions", "name": "VS Code 확장 프로그램", "required": false, "size": 200 }
+                    ]
+                },
+                {
+                    "name": "데이터베이스",
+                    "icon": "🗄️",
+                    "tools": [
+                        { "id": "postgresql", "name": "PostgreSQL", "required": true, "size": 300 },
+                        { "id": "mysql", "name": "MySQL", "required": true, "size": 400 },
+                        { "id": "mongodb", "name": "MongoDB", "required": true, "size": 500 },
+                        { "id": "redis", "name": "Redis", "required": true, "size": 50 },
+                        { "id": "sqlite-studio", "name": "SQLite Studio", "required": false, "size": 50 }
+                    ]
+                },
+                {
+                    "name": "빅데이터 도구",
+                    "icon": "📊",
+                    "tools": [
+                        { "id": "spark", "name": "Apache Spark", "required": false, "size": 500 }
+                    ]
+                },
+                {
+                    "name": "DevOps & 클라우드",
+                    "icon": "☁️",
+                    "tools": [
+                        { "id": "kubectl", "name": "kubectl", "required": false, "size": 50 }
+                    ]
+                }
+            ],
+            "dependencies": {
+                "jupyter": ["python"],
+                "docker": ["wsl2"]
+            }
+        }
+    },
+    "toolRegistry": {
+        "chocolatey": {
+            "displayName": "Chocolatey",
+            "installer": "chocolatey.ps1",
+            "verifyCommand": "choco --version",
+            "uninstallCommand": "Remove-Item -Recurse -Force $env:ChocolateyInstall",
+            "checksum": null,
+            "officialUrl": "https://chocolatey.org/install.ps1"
+        },
+        "git": {
+            "displayName": "Git",
+            "installer": "git.ps1",
+            "verifyCommand": "git --version",
+            "uninstallCommand": "choco uninstall git -y",
+            "checksum": null,
+            "officialUrl": "https://git-scm.com/"
+        },
+        "nvm": {
+            "displayName": "NVM for Windows",
+            "installer": "node.ps1",
+            "verifyCommand": "nvm version",
+            "uninstallCommand": "choco uninstall nvm -y",
+            "checksum": null
+        },
+        "python": {
+            "displayName": "Python",
+            "installer": "python.ps1",
+            "verifyCommand": "python --version",
+            "uninstallCommand": "choco uninstall python -y",
+            "checksum": null
+        },
+        "java": {
+            "displayName": "OpenJDK",
+            "installer": "java.ps1",
+            "verifyCommand": "java --version",
+            "uninstallCommand": "choco uninstall openjdk -y",
+            "checksum": null
+        },
+        "docker": {
+            "displayName": "Docker Desktop",
+            "installer": "docker.ps1",
+            "verifyCommand": "docker --version",
+            "uninstallCommand": "choco uninstall docker-desktop -y",
+            "checksum": null,
+            "requiresRestart": true
+        },
+        "vscode": {
+            "displayName": "Visual Studio Code",
+            "installer": "vscode.ps1",
+            "verifyCommand": "code --version",
+            "uninstallCommand": "choco uninstall vscode -y",
+            "checksum": null
+        },
+        "kubectl": {
+            "displayName": "Kubernetes CLI",
+            "installer": "tools.ps1",
+            "function": "Install-Kubectl",
+            "verifyCommand": "kubectl version --client",
+            "uninstallCommand": "choco uninstall kubernetes-cli -y",
+            "checksum": null
+        },
+        "ngrok": {
+            "displayName": "ngrok",
+            "installer": "tools.ps1",
+            "function": "Install-Ngrok",
+            "verifyCommand": "ngrok version",
+            "uninstallCommand": "choco uninstall ngrok -y",
+            "checksum": null
+        },
+        "obsidian": {
+            "displayName": "Obsidian",
+            "installer": "tools.ps1",
+            "function": "Install-Obsidian",
+            "verifyCommand": null,
+            "uninstallCommand": "choco uninstall obsidian -y",
+            "checksum": null
+        }
+    }
+}
